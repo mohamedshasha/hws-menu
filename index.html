@@ -20,7 +20,7 @@
 
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23d9534f'/%3E%3Ctext x='50' y='70' font-size='54' font-weight='bold' text-anchor='middle' fill='white' font-family='sans-serif'%3EH%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" id="appleIcon" href="">
+<link rel="apple-touch-icon" sizes="192x192" id="appleIcon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="HWS CREPE">
 
@@ -901,15 +901,14 @@ const OPTS = {
 
 /* ساعات العمل: 0=الأحد … 6=السبت. null = مغلق ذلك اليوم */
 const HOURS_DEFAULT = {
-  0:{open:"08:00",close:"01:00"},   // الأحد
-  1:{open:"08:00",close:"01:00"},   // الاثنين
-  2:{open:"08:00",close:"01:00"},   // الثلاثاء
-  3:{open:"08:00",close:"01:00"},   // الأربعاء
-  4:{open:"08:00",close:"02:00"},   // الخميس
+  0:{open:"10:00",close:"01:00"},   // الأحد
+  1:{open:"10:00",close:"01:00"},   // الاثنين
+  2:{open:"10:00",close:"01:00"},   // الثلاثاء
+  3:{open:"10:00",close:"01:00"},   // الأربعاء
+  4:{open:"10:00",close:"02:00"},   // الخميس
   5:{open:"14:00",close:"02:00"},   // الجمعة
-  6:{open:"08:00",close:"01:00"}    // السبت
+  6:{open:"10:00",close:"01:00"}    // السبت
 };
-
 
 /* ============================================================================
    ٣ — المنيو
@@ -1243,10 +1242,18 @@ function setBranch(id){
   applyBranch();
 }
 
+/* أيفون يتجاهل apple-touch-icon إذا كان data: — لذلك نبقي ملف PNG حقيقياً،
+   ولا نرجع لصورة base64 إلا إذا كان الملف غير موجود بجانب الصفحة. */
+function setAppleIcon(){
+  fetch("./icon-192.png", { method:"HEAD" })
+    .then(r => { if (!r.ok) throw 0; })
+    .catch(() => { const s = imgSrc(CONFIG.logo); if (s) $("#appleIcon").href = s; });
+}
+
 function applyBranch(){
   document.title = `HWS CREPE — ${tx(branch.name)}`;
   $("#brandLogo").src  = imgSrc(CONFIG.logo);
-  $("#appleIcon").href = imgSrc(CONFIG.logo);
+  setAppleIcon();
   const cv = imgSrc(CONFIG.cover);
   $("#cover").style.setProperty("--cover-img", cv ? `url("${cv}")` : "none");
   $("#branchName").textContent = tx(branch.name);
@@ -2031,7 +2038,7 @@ window.__hydrateImages = function(){
   if (!branch) return;
   $("#brandLogo").src  = imgSrc(CONFIG.logo);
   $("#bsLogo").src     = imgSrc(CONFIG.logo);
-  $("#appleIcon").href = imgSrc(CONFIG.logo);
+  setAppleIcon();
   const cv = imgSrc(CONFIG.cover);
   $("#cover").style.setProperty("--cover-img", cv ? `url("${cv}")` : "none");
   renderMenu($("#q").value.trim());
